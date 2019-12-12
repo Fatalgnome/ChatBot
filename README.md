@@ -2,6 +2,9 @@
 ChatBot i made, as part of the recruitment process for the IBM CIC
 
 General info:
+
+This is a console app i made in Visual Studio. To run the application, you should be able to just open the .sln located inside the 'Chatbot' folder, in Visual Studio and then run the app.
+
 I have not made my own API for this task. The reason for this being that, i tried making an API on AWS, but i ended up spending too much time figuring out how to do it.
 
 I understand the basic principles of making an API, since i have made one with Express before.
