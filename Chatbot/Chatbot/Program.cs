@@ -14,7 +14,6 @@ namespace Chatbot
 
         private static void Main(string[] args)
         {
-
             var random = new Random();
             var adminAccess = false;
             var notKnownAnswers = new List<string>();
