@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,53 +9,70 @@ namespace Chatbot
 {
     class Program
     {
+        private static readonly Database database = new Database();
+        private static bool running = true;
+        private static string name;
 
         private static void Main(string[] args)
         {
-            var running = true;
-            Random random = new Random();
+
+            var random = new Random();
+
+            var notKnownAnswers = new List<string>();
             Console.WriteLine("Hello Customer, enter your name");
 
-            Startup(Console.ReadLine(), random.Next(1, 3));
+            //Convert first letter to uppercase
+            name = Console.ReadLine();
+            name = name.First().ToString().ToUpper() + name.Substring(1);
+
+            Startup(name, random.Next(1, 3));
 
             Console.WriteLine("To exit this conversation at any time, type: 'goodbye'");
 
+            //Main user loop
             while (running)
             {
-                switch (Console.ReadLine())
+                var input = Console.ReadLine().ToLower();
+                switch (input)
                 {
                     case "help":
                         Console.WriteLine("Here is a list of what commands i have:\n" +
                                           "'hammer' \n" +
                                           "'screwdriver' \n" +
-                                          "'something' \n" +
                                           "'joke' \n" +
-                                          "'goodbye'");
+                                          "'goodbye'\n" +
+                                          "'admin'");
                         break;
 
                     case "hammer":
-                    case "Hammer":
                         Hammer();
                         break;
 
                     case "screwdriver":
-                    case "Screwdriver":
                         Screwdriver();
                         break;
 
                     case "joke":
-                    case "Joke":
-                        getJoke();
+                        GetJoke();
                         break;
 
                     case "goodbye":
-                    case "Goodbye":
                         running = false;
-                        Console.WriteLine("Goodbye, have a nice day, hope we were able to help");
+                        Console.WriteLine("Goodbye, have a nice day, hope i was able to help");
+                        break;
+
+                    case "admin":
+                        Console.Clear();
+                        AdminConsole(notKnownAnswers);
                         break;
 
                     default:
-                        Console.WriteLine("Command not accepted");
+                        if (input != String.Empty) 
+                        {
+                            notKnownAnswers.Add(input);
+                        }
+
+                        Console.WriteLine("Dont know the answer to that question");
                         break;
                 }
             }
@@ -64,6 +82,8 @@ namespace Chatbot
 
         private static void Startup(string name, int random)
         {
+            Program.name = name;
+
             switch (random)
             {
                 case 1:
@@ -80,45 +100,58 @@ namespace Chatbot
 
         private static void Hammer()
         {
-            List<string> hammerList = new List<string>();
-            hammerList.Add("https://www.harald-nyborg.dk/p2386/bahco-kloefthammer");
-            hammerList.Add("https://www.bauhaus.dk/vaerktoj-isenkram/handvaerktoj/hammere/gummihammer-64-mm");
-            hammerList.Add("https://www.stark.dk/raptor-750-g-laegtehammer?id=2640-9671199");
-
             Console.WriteLine("Here is a list of hammers we have in stock:\n");
-            foreach (string s in hammerList)
+            foreach (var s in database.HammerList)
             {
-                Console.WriteLine($"{s}\n");
+                if (database.HammerList.Count != 0 )
+                {
+                    Console.WriteLine($"{s}\n");
+                }
+                else
+                {
+                    Console.WriteLine("No hammers in stock");
+                }
+
             }
         }
 
         private static void Screwdriver()
         {
-            Console.WriteLine("No screwdrivers in stock");
+            if (database.ScrewdriverList.Count <= 0)
+            {
+                Console.WriteLine("No screwdrivers in stock at the moment");
+            }
+            foreach (var s in database.ScrewdriverList)
+            {
+                    Console.WriteLine($"{s}\n");
+            }
         }
 
-        private static async void getJoke()
+        private static async void GetJoke()
         {
             //Disclaimer: This is not my API
-            string baseUrl = "http://api.icndb.com/jokes/random";
+            //Link to Chuck Norris joke API
+            var baseUrl = "http://api.icndb.com/jokes/random";
 
+
+            //Get data from API
             try
             {
-                using (HttpClient client = new HttpClient())
+                using (var client = new HttpClient())
                 {
-                    using (HttpResponseMessage res = await client.GetAsync(baseUrl))
+                    using (var res = await client.GetAsync(baseUrl))
                     {
-                        using (HttpContent content = res.Content)
+                        using (var content = res.Content)
                         {
-                            string data = await content.ReadAsStringAsync();
+                            var data = await content.ReadAsStringAsync();
 
                             if (data != null)
                             {
                                 var dataObj = JObject.Parse(data);
 
                                 //First need to get the values, then we can get the joke
-                                var value = dataObj["value"];
-                                var joke = value["joke"];
+                                var valueObj = dataObj["value"];
+                                var joke = valueObj["joke"];
 
                                 Console.WriteLine(joke);
                             }
@@ -136,5 +169,26 @@ namespace Chatbot
             }
         }
 
+        private static void AdminConsole(List<string> answersList)
+        {
+            Console.WriteLine("Welcome to the admin console\n" +
+                              $"You currently have {answersList.Count} notifications\n" +
+                              $"press any key to view notifcations");
+            Console.ReadKey();
+
+            if (answersList.Count <= 0)
+            {
+                Console.WriteLine("No new notifications");
+            }
+
+            foreach (var s in answersList)
+            {
+                Console.WriteLine(s);
+            }
+
+            Console.WriteLine("To return to the customer console press 'enter'");
+            Console.ReadKey();
+            Console.WriteLine($"Welcome back {name}! Type 'help' for my commands");
+        }
     }
 }
