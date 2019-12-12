@@ -2,44 +2,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Chatbot
 {
     class Program
     {
-        private static readonly Database database = new Database();
-        private static bool running = true;
-        private static string name;
+        private static readonly Database Database = new Database();
+        private static bool _running = true;
+        private static string _name;
 
         private static void Main(string[] args)
         {
 
             var random = new Random();
-
+            var adminAccess = false;
             var notKnownAnswers = new List<string>();
+
             Console.WriteLine("Hello Customer, enter your name");
 
-            //Convert first letter to uppercase
-            name = Console.ReadLine();
-            name = name.First().ToString().ToUpper() + name.Substring(1);
+            _name = Console.ReadLine();
 
-            Startup(name, random.Next(1, 3));
+            //Convert first letter to uppercase
+            _name = _name?.First().ToString().ToUpper() + _name?.Substring(1);
+
+            if (_name == "Admin")
+            {
+                adminAccess = true;
+            }
+
+            Startup(_name, random.Next(1, 3));
 
             Console.WriteLine("To exit this conversation at any time, type: 'goodbye'");
 
             //Main user loop
-            while (running)
+            while (_running)
             {
-                var input = Console.ReadLine().ToLower();
+                var input = Console.ReadLine()?.ToLower();
                 switch (input)
                 {
                     case "help":
                         Console.WriteLine("Here is a list of what commands i have:\n" +
+                                          "'help' \n" +
                                           "'hammer' \n" +
                                           "'screwdriver' \n" +
                                           "'joke' \n" +
+                                          "'weather' \n" +
                                           "'goodbye'\n" +
                                           "'admin'");
                         break;
@@ -56,18 +64,40 @@ namespace Chatbot
                         GetJoke();
                         break;
 
+                    case "weather":
+                        Console.WriteLine("Type your current city or country in english");
+                        var city = Console.ReadLine();
+
+                        if (city != string.Empty)
+                        {
+                            GetNewWeather(city);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Type 'weather' to try again");
+                        }
+
+                        break;
+
                     case "goodbye":
-                        running = false;
+                        _running = false;
                         Console.WriteLine("Goodbye, have a nice day, hope i was able to help");
                         break;
 
                     case "admin":
-                        Console.Clear();
-                        AdminConsole(notKnownAnswers);
+                        if (adminAccess)
+                        {
+                            Console.Clear();
+                            AdminConsole(notKnownAnswers);
+                        }
+                        else
+                        {
+                            Console.WriteLine("You do not have access to this command");
+                        }
                         break;
 
                     default:
-                        if (input != String.Empty) 
+                        if (input != string.Empty) 
                         {
                             notKnownAnswers.Add(input);
                         }
@@ -82,7 +112,6 @@ namespace Chatbot
 
         private static void Startup(string name, int random)
         {
-            Program.name = name;
 
             switch (random)
             {
@@ -101,15 +130,17 @@ namespace Chatbot
         private static void Hammer()
         {
             Console.WriteLine("Here is a list of hammers we have in stock:\n");
-            foreach (var s in database.HammerList)
+
+            if (Database.HammerList.Count <= 0)
             {
-                if (database.HammerList.Count != 0 )
+                Console.WriteLine("No hammers in stock");
+            }
+
+            foreach (var s in Database.HammerList)
+            {
+                if (Database.HammerList.Count != 0 )
                 {
                     Console.WriteLine($"{s}\n");
-                }
-                else
-                {
-                    Console.WriteLine("No hammers in stock");
                 }
 
             }
@@ -117,11 +148,15 @@ namespace Chatbot
 
         private static void Screwdriver()
         {
-            if (database.ScrewdriverList.Count <= 0)
+            Console.WriteLine("Here is a list of screwdrivers we have in stock:\n");
+
+            if (Database.ScrewdriverList.Count <= 0)
             {
                 Console.WriteLine("No screwdrivers in stock at the moment");
             }
-            foreach (var s in database.ScrewdriverList)
+
+            //This will never run, this is just here if someone decides to add some data
+            foreach (var s in Database.ScrewdriverList)
             {
                     Console.WriteLine($"{s}\n");
             }
@@ -130,7 +165,7 @@ namespace Chatbot
         private static async void GetJoke()
         {
             //Disclaimer: This is not my API
-            //Link to Chuck Norris joke API
+            //Link to Chuck Norris joke API: http://www.icndb.com/api/
             var baseUrl = "http://api.icndb.com/jokes/random";
 
 
@@ -173,7 +208,7 @@ namespace Chatbot
         {
             Console.WriteLine("Welcome to the admin console\n" +
                               $"You currently have {answersList.Count} notifications\n" +
-                              $"press any key to view notifcations");
+                              $"press 'enter' to view notifcations");
             Console.ReadKey();
 
             if (answersList.Count <= 0)
@@ -188,7 +223,14 @@ namespace Chatbot
 
             Console.WriteLine("To return to the customer console press 'enter'");
             Console.ReadKey();
-            Console.WriteLine($"Welcome back {name}! Type 'help' for my commands");
+            Console.WriteLine($"Welcome back {_name}! Type 'help' for my commands");
+        }
+
+        private static void GetNewWeather(string city)
+        {
+            var weather = new Weather();
+
+            weather.CurrentWeather(city);
         }
     }
 }
