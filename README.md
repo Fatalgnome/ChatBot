@@ -9,7 +9,7 @@ I have not made my own API for this task. The reason for this being that, i trie
 
 I understand the basic principles of making an API, since i have made one with Express before.
 
-I tried making an Express API for this project as well, but couldnt get it to work in time. I will include the "app.js" in the project as well, just so you can see what i was working on.
+I tried making an Express API for this project as well, but couldnt get it to work. I will include the "app.js" in the project as well, just so you can see what i was working on.
 
 Instead of getting data from an API, i get the data from the Database class, which is not optimal, but similar to the way i was gonna use the API.
 
