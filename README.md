@@ -13,6 +13,7 @@ Instead of getting data from an API, i get the data from the Database class, whi
 I have still used two different external API's to show that i have the ability to work with an API.
 
 Reasoning for technology:
+
 The main reasoning for using Visual Studio and C#, is because this is where i am most comfortable, and have the most experience.
 C# is really good at making quick applications.
 
