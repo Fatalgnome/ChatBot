@@ -7080,10 +7080,10 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\documents\\visual studio 2017\\Projects\\Chatbot\\Chatbot\\Chatbot.csproj",
+      "projectUniqueName": "D:\\Documents\\Stuff\\Programming stuff\\ChatBot\\Chatbot\\Chatbot\\Chatbot.csproj",
       "projectName": "Chatbot",
-      "projectPath": "d:\\documents\\visual studio 2017\\Projects\\Chatbot\\Chatbot\\Chatbot.csproj",
-      "outputPath": "d:\\documents\\visual studio 2017\\Projects\\Chatbot\\Chatbot\\obj\\",
+      "projectPath": "D:\\Documents\\Stuff\\Programming stuff\\ChatBot\\Chatbot\\Chatbot\\Chatbot.csproj",
+      "outputPath": "D:\\Documents\\Stuff\\Programming stuff\\ChatBot\\Chatbot\\Chatbot\\obj\\",
       "projectStyle": "PackageReference",
       "originalTargetFrameworks": [
         "netcoreapp1.1"
